@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300&display=swap" rel="stylesheet">
+	<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9/dist/sweetalert2.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@9/dist/sweetalert2.min.css" id="theme-styles">
+	<style type="text/css">
+		.charector{
+			position: absolute;
+			opacity: 1;
+			transition:all 0.5s ease;
+		}
+		#one{
+			top:5px;
+			left:0px;
+		}
+		#two{
+			top:240px;
+			left:0px;
+		}
+		#three{
+			top:480px;
+			left:0px;
+		}
+		#four{
+			top:365px;
+			left:0px;
+		}
+				/*-------------------ตกแต่งหน้าเกม-------------------------*/
+		body{
+			font-family: 'Kanit', sans-serif;
+		}
+		/*-------------------เฟรมหลักของเกม-------------------------*/
+		canvas{
+			/*border:1px solid rgba(225,0,154);*/
+			display: inline-block;
+			box-shadow: 0px 0px 5px #DDD;
+			float: left;
+			margin-left: 100px;
+			margin-top:50px;
+		}
+		/*-------------------ลูกเต๋า-------------------------*/
+		#dice{
+			width: 100px;
+			height: 100px;
+			display: block;
+			background-image: url('./ลูกเต๋า/1.png');
+			background-size:cover;
+			box-shadow:0px 0px 5px #DDD;
+			border-radius: 40px;
+			margin-left: 210px;
+			margin-top: 40px;
+			
+		}
+		#dice:hover{
+			background-image: url('./ลูกเต๋า/animation.gif');
+			background-size:cover;
+		}
+		/*-------------------ปุ่มต่างๆ-------------------------*/
+		button{
+			font-family: 'Kanit', sans-serif;
+			border:1px solid #DDD;
+			padding: 10px 25px;
+			background-color: #DDD;
+			border-radius: 3px;
+		}
+		select{
+			padding:10px 25px;
+			border-radius: 3px;
+			font-family: 'Kanit', sans-serif;
+		}
+		/*-------------------กล่องคุม-------------------------*/
+		.controls{
+			width: 500px;
+			box-shadow: 0px 0px 15px #DDD;
+			float: right;
+			margin-top:50px;
+			margin-right: 5%;
+			padding: 10px 25px;
+			border-radius: 15px;
+		}
+		.controls>img{
+			margin-left: 180px;
+			display: inline;
+			margin-bottom: 20px;
+		}
+		.span_text{
+			width: 100%;
+			text-align: center;
+			font-weight: bold;
+			margin-top:10px;
+			margin-bottom: 10px;
+		}
+		.alert{
+			box-shadow: 0px 0px 5px #000;
+			width: 300px;
+			height: 150px;
+			padding: 10px 25px 10px 25px;
+			background-color: #FFF;
+			position: absolute;
+			margin-top: 200px;
+			margin-left: 200px;
+		}
+		#event{
+			background-color:transparent;
+			border:0px solid transparent;
+			outline: none;
+			box-shadow: 0px 0px 5px 0px #DDD;
+			border-radius: 15px;
+			margin-bottom: 20px;
+		}
+		#imgrand{
+			width: 150px;
+			background-color:transparent;
+			border:0px solid transparent;
+			outline: none;
+			transition: all 0.5s ease;
+		}
+		#imgrand:hover{
+			transform: scale(1.1,1.1);
+		}
+		#main{
+			display: none;
+		}
+		#start{
+			width: 100%;
+			display: block;
+			height: 500px;
+			background-image:url('main.png');
+		}
+		#start>button{
+			margin-top: 30%;
+			margin-left: 45%;
+			background:linear-gradient(180deg,rgba(250,200,126,1)0%,rgba(243,172,111,1)100%);
+			color:#fff;
+			font-weight:bold;
+			border-radius:25px;
+			border:2px solid #e39e65;
+			padding: 10 25px;
+			outline:none;
+			width: 180px;
+			height:60px;
+			box-shadow: 0px 5px 0px 0px #e39e65;
+		}
+		/*
+		5
+		120
+		240
+		365
+		480
+
+		0
+		110
+		240
+		340
+		460
+		580
+		*/
+	</style>
+</head>
+<body>
+<div id="start">
+		<button onclick="start_game()">เริ่มเกม</button>
+</div>
+<div width="1280px" id="main">
+
+<img src="1.gif" width="100" height="100" class="charector" id="one">
+<img src="2.gif" width="100" height="100" class="charector" id="two">
+<img src="3.gif" width="100" height="100" class="charector" id="three">
+<img src="4.gif" width="100" height="100" class="charector" id="four">
+<img src="Untitled-7.gif" width="680px">
+
+
+<div class="controls">
+		<!--ภาพตัวละคร--->
+		<img src="1.gif" width="140" height="140" id="img">
+		<!--ภาพตัวละคร--->
+		<div class="span_text">
+			<button onclick="newGame()">เริ่มเกมใหม่</button>
+		</div>
+		<div class="span_text">
+			<a>
+				ตาของผู้เล่นที่ 
+			</a>
+			<h3 id="label">1</h3>
+		</div>
+		<div class="span_text">
+			<!--ลูกเต๋า--->
+			<button onclick="rand()" id="event"><img src="1.png" id="imgrand"></button>
+			<!--ลูกเต๋า--->
+		</div>
+	</div>
+</div>
+<audio autoplay loop>
+	<source src="12tails.mp3" type="audio/mpeg" >
+</audio>
+<script type="text/javascript">
+	function start_game(){
+		document.getElementById('start').style.display='none'
+		document.getElementById('main').style.display='block'
+	}
+	var firebaseConfig = {
+   			apiKey: "AIzaSyBgej8wRzG-5J4vZNDP_nku75OlhAUhetM",
+    		authDomain: "webv-cb0d0.firebaseapp.com",
+    		databaseURL: "https://webv-cb0d0.firebaseio.com",
+    		projectId: "webv-cb0d0",
+    		storageBucket: "webv-cb0d0.appspot.com",
+    		messagingSenderId: "612538720203",
+    		appId: "1:612538720203:web:dba192e10d8b8e65"
+  		};
+  		firebase.initializeApp(firebaseConfig);
+  		var ref=firebase.database().ref("gamesnake");
+	var area=[
+	[0,480],[110,480],[240,480],[340,480],[460,480],[580,480],
+	[580,365],[460,365],[340,365],[240,365],[110,365],[0,365],
+	[0,240],[110,240],[240,240],[340,240],[460,240],[580,240],
+	[580,120],[460,120],[340,120],[240,120],[110,120],[0,120],
+	[0,5],[110,5],[240,5],[340,5],[460,5],[580,5],
+	]
+	var users=document.getElementById("selectcharacter")
+	var btn=document.getElementById("event")
+	var turn=1;
+	var turnUser=1;
+	var position={
+		"one":[0],
+		"two":[0],
+		"three":[0],
+		"four":[0],
+	}
+	
+	var gameover=false
+	let ansend=""
+	var ansturn=false;
+	var warb=[
+		[5,7],[13,11],[22,26],[28,20]
+	]
+	let o=0;
+	var ans=[]
+	while (o<5){
+		let randomans=Math.random()*29
+		for(let n=0;n<warb.length;n++){
+			if(randomans!=0 && randomans!=29 &&warb[n][0]!=Math.floor(randomans) && !ans.includes(Math.floor(randomans))){
+				ans.push(Math.floor(randomans))
+				o++
+			}
+		}
+	}
+	console.log(ans)
+	var ask=[["1+1",true],["2+2",false]]
+	function checkUser(){
+		if(users.value==(turn)){
+			btn.disabled=false
+		}else{
+			btn.disabled=true
+		}
+	}
+	function newGame(){
+		document.getElementById("event").disabled=false
+		turn=1
+		gameover=false;
+		position={
+		"one":[0],
+		"two":[0],
+		"three":[0],
+		"four":[0],
+
+	}
+	document.getElementById("label").innerHTML=1
+	ans=[]
+	while (o<5){
+		let randomans=Math.floor(Math.random()*29)
+		for(let n=0;n<warb.length;n++){
+			if(randomans!=0 && randomans!=29 &&warb[n][0]!=randomans && !ans.includes(randomans)){
+				ans.push(Math.floor(randomans))
+				o++
+			}
+		}
+	}
+	turnUser=1;
+	console.log(ans)
+	setUser()
+	}
+
+	function setUser(){
+		document.getElementById("one").style.left=area[position["one"][0]][0]+"px"
+		document.getElementById("one").style.top=area[position["one"][0]][1]+"px"
+		//===========================================================//
+		document.getElementById("two").style.left=area[position["two"][0]][0]+"px"
+		document.getElementById("two").style.top=area[position["two"][0]][1]+"px"
+		//===========================================================//
+		document.getElementById("three").style.left=area[position["three"][0]][0]+"px"
+		document.getElementById("three").style.top=area[position["three"][0]][1]+"px"
+		//===========================================================//
+		document.getElementById("four").style.left=area[position["four"][0]][0]+"px"
+		document.getElementById("four").style.top=area[position["four"][0]][1]+"px"
+	}
+	setUser()
+
+	function rand(){
+		btn.disabled=true
+		document.getElementById("imgrand").src="animation.gif"
+		let rand=Math.floor(Math.random(6)*6)+1
+		setTimeout(function(){
+			document.getElementById("imgrand").src=rand+".png"
+			move(rand)
+		},1000)
+		
+		
+	}
+	function reset(){
+		let one=document.getElementById("one").src="1.gif"
+		let two=document.getElementById("two").src="2.gif"
+		let three=document.getElementById("three").src="3.gif"
+		let four=document.getElementById("four").src="4.gif"
+	}
+	function move(rand){
+		if(!gameover){
+		let one=document.getElementById("one")
+		let two=document.getElementById("two")
+		let three=document.getElementById("three")
+		let four=document.getElementById("four")
+		console.log("$ "+rand)
+		if(winner()!=""){
+			turn=-1
+		}else{
+			turn=(turn==3)?0:turn+1
+		}
+		
+		if(turn==0){
+			position["one"][0]=(29>=(position["one"][0]+rand))?position["one"][0]+rand:position["one"][0]-rand
+			one.src="1move.png"
+			one.style.left=area[position["one"][0]][0]+"px"
+			one.style.top=area[position["one"][0]][1]+"px"
+		}else if(turn==1){
+			position["two"][0]=(29>=(position["two"][0]+rand))?position["two"][0]+rand:position["two"][0]-rand
+			two.src="2move.png"
+			two.style.left=area[position["two"][0]][0]+"px"
+			two.style.top=area[position["two"][0]][1]+"px"
+		}else if(turn==2){
+			position["three"][0]=(29>=(position["three"][0]+rand))?position["three"][0]+rand:position["three"][0]-rand
+			three.src="3move.png"
+			three.style.left=area[position["three"][0]][0]+"px"
+			three.style.top=area[position["three"][0]][1]+"px"
+		}else if(turn==3){
+			position["four"][0]=(29>=(position["four"][0]+rand))?position["four"][0]+rand:position["four"][0]-rand
+			four.src="4move.png"
+			four.style.left=area[position["four"][0]][0]+"px"
+			four.style.top=area[position["four"][0]][1]+"px"
+		}
+		
+		event()
+		askbox()
+		winner()
+		document.getElementById("label").innerHTML=((turn)==0)?4:turn
+		document.getElementById("img").src=(((turn+2)>4)?1:(turn+2))+".gif"
+		ref=firebase.database().ref("gamesnake/position")
+		ref.child("turn").set(turn)
+		setTimeout(function(){
+			console.log("ready")
+			btn.disabled=false
+			reset()
+		},500)
+		}
+	}
+
+	function event(){
+		btn.disabled=true
+		let arr=Object.keys(position);
+		for(let n=0;n<warb.length;n++){
+			for(let i=0;i<arr.length;i++){
+			if(position[arr[i]][0]==warb[n][0]){
+				console.log("check :"+warb[n][0]+": :"+warb[n][1]+": ")
+				console.log(position[arr[i]])
+				setTimeout(function(){
+				let u=warb[n][1]-position[arr[i]][0]
+				turn-=1
+				move(u)
+				},1000)
+			}
+		}
+		}
+		setTimeout(function(){
+			console.log("ready")
+			btn.disabled=false
+		},1000)
+	}
+	async function askbox(){
+		btn.disabled=true
+		let p;
+		let names;
+		let arr=Object.keys(position);
+		for(let i=0;i<arr.length;i++){
+			if(ans.includes(position[arr[i]][0])){
+				p=ask[Math.floor(Math.random()*ask.length)]
+				ansend=p[3]
+				names=arr[i]
+  				break
+			}
+		}
+		await swal.fire({
+    		title: 'คำถาม',
+    		text: p[0],
+    		type: 'warning',
+    		confirmButtonText: 'ใช่',
+  			cancelButtonText: 'ไม่',
+  			showCancelButton: true,
+  			showCloseButton: true
+  		}).then((value)=>{
+			if(((value["dismiss"]=="cancel")?false:true)==p[1]){
+				swal.fire("ถูกต้อง","คุณตอบคำถามถูก","success");
+				position[names][0]=position[names][0]+1
+				let audio=new Audio("m2.mp3")
+				audio.play()
+			}else{
+				swal.fire("ผิด","คุณตอบคำถามผิด","error");
+				position[names][0]=position[names][0]-1
+				let audio=new Audio("m1.mp3")
+				audio.play()
+			}
+			if(turn==0){
+			one.style.left=area[position["one"][0]][0]+"px"
+			one.style.top=area[position["one"][0]][1]+"px"
+		}else if(turn==1){
+			two.style.left=area[position["two"][0]][0]+"px"
+			two.style.top=area[position["two"][0]][1]+"px"
+		}else if(turn==2){
+			three.style.left=area[position["three"][0]][0]+"px"
+			three.style.top=area[position["three"][0]][1]+"px"
+		}else if(turn==3){
+			four.style.left=area[position["four"][0]][0]+"px"
+			four.style.top=area[position["four"][0]][1]+"px"
+		}
+		if(winner()!=""){
+			turn=-1
+		}else{
+			turn=(turn==3)?0:turn+1
+		}
+		event()
+  		});
+	}
+	function winner(){
+		let arr=Object.keys(position);
+		for(let i=0;i<arr.length;i++){
+			if(position[arr[i]][0]==29){
+				swal.fire("จบเกม","ผู้เล่น "+(i+1)+" ชนะ","success");
+				let audio=new Audio("m2.mp3")
+				audio.play()
+				gameover=true
+			}
+		}
+		return "";
+	}
+</script>
+</body>
+</html>
