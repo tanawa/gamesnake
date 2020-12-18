@@ -132,6 +132,8 @@
 			display: block;
 			height: 500px;
 			background-image:url('main.png');
+			background-size: cover;
+			background-repeat: no-repeat;
 		}
 		#start>button{
 			margin-top: 30%;
@@ -237,7 +239,7 @@
 	let ansend=""
 	var ansturn=false;
 	var warb=[
-		[5,7],[13,11],[22,26],[28,20]
+		[5,7,1],[13,11,0],[22,26,1],[28,20,0]
 	]
 	let o=0;
 	var ans=[]
@@ -354,7 +356,7 @@
 		}
 		
 		event()
-		askbox()
+		//askbox()
 		winner()
 		document.getElementById("label").innerHTML=((turn)==0)?4:turn
 		document.getElementById("img").src=(((turn+2)>4)?1:(turn+2))+".gif"
@@ -376,6 +378,17 @@
 			if(position[arr[i]][0]==warb[n][0]){
 				console.log("check :"+warb[n][0]+": :"+warb[n][1]+": ")
 				console.log(position[arr[i]])
+				let txt=""
+				if(warb[n][2]==1){
+					txt="บรรได"
+					let audio=new Audio("m2.mp3")
+					audio.play()
+				}else{
+					txt="งู"
+					let audio=new Audio("m1.mp3")
+					audio.play()
+				}
+				swal.fire(txt,"คุณเจอ"+txt,"success");
 				setTimeout(function(){
 				let u=warb[n][1]-position[arr[i]][0]
 				turn-=1
